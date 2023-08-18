@@ -566,45 +566,50 @@ NetLogo 6.3.0
 @#$#@#$#@
 <experiments>
   <experiment name="pcg" repetitions="1" sequentialRunOrder="false" runMetricsEveryStep="false">
+    <setup>show (word "pcg start: " date-and-time)</setup>
     <go>pcg</go>
-    <timeLimit steps="10000"/>
-    <metric>count turtles</metric>
+    <final>show (word "pcg end: " date-and-time)</final>
+    <timeLimit steps="1000000"/>
     <enumeratedValueSet variable="normal-distribution?">
       <value value="true"/>
       <value value="false"/>
     </enumeratedValueSet>
   </experiment>
   <experiment name="mersenne" repetitions="1" sequentialRunOrder="false" runMetricsEveryStep="false">
+    <setup>show (word "mersenne start: " date-and-time)</setup>
     <go>mersenne</go>
-    <timeLimit steps="10000"/>
-    <metric>count turtles</metric>
+    <final>show (word "mersenne end: " date-and-time)</final>
+    <timeLimit steps="1000000"/>
     <enumeratedValueSet variable="normal-distribution?">
       <value value="true"/>
       <value value="false"/>
     </enumeratedValueSet>
   </experiment>
   <experiment name="well" repetitions="1" sequentialRunOrder="false" runMetricsEveryStep="false">
+    <setup>show (word "well start: " date-and-time)</setup>
     <go>well</go>
-    <timeLimit steps="10000"/>
-    <metric>count turtles</metric>
+    <final>show (word "well end: " date-and-time)</final>
+    <timeLimit steps="1000000"/>
     <enumeratedValueSet variable="normal-distribution?">
       <value value="true"/>
       <value value="false"/>
     </enumeratedValueSet>
   </experiment>
   <experiment name="xorshift" repetitions="1" sequentialRunOrder="false" runMetricsEveryStep="false">
+    <setup>show (word "xorshift start: " date-and-time)</setup>
     <go>xorshift</go>
-    <timeLimit steps="10000"/>
-    <metric>count turtles</metric>
+    <final>show (word "xorshift end: " date-and-time)</final>
+    <timeLimit steps="1000000"/>
     <enumeratedValueSet variable="normal-distribution?">
       <value value="true"/>
       <value value="false"/>
     </enumeratedValueSet>
   </experiment>
   <experiment name="built-in" repetitions="1" sequentialRunOrder="false" runMetricsEveryStep="false">
+    <setup>show (word "builtin start: " date-and-time)</setup>
     <go>built-in</go>
-    <timeLimit steps="10000"/>
-    <metric>count turtles</metric>
+    <final>show (word "builtin end: " date-and-time)</final>
+    <timeLimit steps="1000000"/>
     <enumeratedValueSet variable="normal-distribution?">
       <value value="true"/>
       <value value="false"/>
