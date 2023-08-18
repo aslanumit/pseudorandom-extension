@@ -2,6 +2,8 @@
 project/project/
 project/target/
 target/
+.bundledFiles
+.bsp
 
 # VSCode
 .vscode
@@ -19,6 +21,9 @@ target/
 # Java
 *.class
 
-# netlogo
+# NetLogo
 *.tmp.nlogo
+
+# Project
+pseudorandom
 
