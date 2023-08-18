@@ -5,35 +5,40 @@ import core.Syntax._
 import api.ScalaConversions._  // implicits
 import org.nlogo.core.AgentKind
 
-import spire._
+//import spire.random._
+import spire.random.Generator // Gives us the Generator abstract class to swap algorithms
+import spire.random.rng // Gives us the algorithms
 
 class PseudoRandomExtension extends api.DefaultClassManager {
 
   def load(manager: api.PrimitiveManager) {
     // generate numbers
     manager.addPrimitive("random", Random)
-//    manager.addPrimitive("random-float", RandomFloat)
+    manager.addPrimitive("random-float", RandomDouble)
     manager.addPrimitive("random-normal", RandomGaussian)
-//    manager.addPrimitive("random-gaussian", RandomGaussian)
     // switch algorithm
     manager.addPrimitive("use-mersenne", UseMersenne)
     manager.addPrimitive("use-pcg", UsePCG)
     manager.addPrimitive("use-well", UseWell)
     manager.addPrimitive("use-xorshift", UseXorshift)
     // utilities
-    manager.addPrimitive("active-algorithm", GetActiveAlgorithm)
+    manager.addPrimitive("active-algorithm", ReportActiveAlgorithm)
   }
 }
 
 // Set-up
+object PseudoRandom{
+  var algorithm = rng.MersenneTwister64().asInstanceOf[Generator]
+}
 
+// Generators
 
 object UsePCG extends api.Command {
   override def getSyntax =
     commandSyntax()
 
   def perform(args: Array[api.Argument], context: api.Context) {
-    ActiveAlgorithm.rng = spire.random.rng.PcgXshRr64_32().asInstanceOf[spire.random.Generator]
+    PseudoRandom.algorithm = rng.PcgXshRr64_32().asInstanceOf[Generator]
   }
 }
 
@@ -42,7 +47,7 @@ object UseMersenne extends api.Command {
     commandSyntax()
 
   def perform(args: Array[api.Argument], context: api.Context) {
-    ActiveAlgorithm.rng = spire.random.rng.MersenneTwister64().asInstanceOf[spire.random.Generator]
+    PseudoRandom.algorithm = rng.MersenneTwister64().asInstanceOf[spire.random.Generator]
   }
 }
 
@@ -51,7 +56,7 @@ object UseWell extends api.Command {
     commandSyntax()
 
   def perform(args: Array[api.Argument], context: api.Context) {
-    ActiveAlgorithm.rng = spire.random.rng.Well512a().asInstanceOf[spire.random.Generator]
+    PseudoRandom.algorithm = rng.Well1024a().asInstanceOf[Generator]
   }
 }
 
@@ -60,11 +65,14 @@ object UseXorshift extends api.Command {
     commandSyntax()
 
   def perform(args: Array[api.Argument], context: api.Context) {
-    ActiveAlgorithm.rng = spire.random.rng.Marsaglia32a6().asInstanceOf[spire.random.Generator]
+    PseudoRandom.algorithm = rng.Marsaglia32a6().asInstanceOf[Generator]
   }
 }
 
+
 // Generators
+
+
 
 object Random extends api.Reporter {
   override def getSyntax =
@@ -77,10 +85,25 @@ object Random extends api.Reporter {
     }
     if (n < 0)
       throw new api.ExtensionException("input must be positive")
-//    val rng = spire.random.rng.PcgXshRr64_32()
-//    rng.nextInt(n).toLogoObject
+
     var num = 0
-    ActiveAlgorithm.rng.nextInt(n).toLogoObject
+    PseudoRandom.algorithm.nextInt(n).toLogoObject
+  }
+}
+
+object RandomDouble extends api.Reporter {
+  override def getSyntax =
+    reporterSyntax(right = List(NumberType), ret = ListType)
+  def report(args: Array[api.Argument], context: api.Context): AnyRef = {
+    val n = try args(0).getDoubleValue
+    catch {
+      case e: api.LogoException =>
+        throw new api.ExtensionException(e.getMessage)
+    }
+    if (n < 0)
+      throw new api.ExtensionException("input must be positive")
+
+    PseudoRandom.algorithm.nextDouble(n).toLogoObject
   }
 }
 
@@ -88,31 +111,29 @@ object RandomGaussian extends api.Reporter {
   override def getSyntax =
     reporterSyntax(right = List(NumberType, NumberType), ret = ListType)
   def report(args: Array[api.Argument], context: api.Context): AnyRef = {
-    val m = try args(0).getIntValue
+    val m = try args(0).getDoubleValue
     catch {
       case e: api.LogoException =>
         throw new api.ExtensionException(e.getMessage)
     }
 
-    val sd = try args(1).getIntValue
+    val sd = try args(1).getDoubleValue
     catch {
       case e: api.LogoException =>
         throw new api.ExtensionException(e.getMessage)
     }
 
-    ActiveAlgorithm.rng.nextGaussian(m, sd).toLogoObject
+    PseudoRandom.algorithm.nextGaussian(m, sd).toLogoObject
   }
 }
 
-// UTILITIES
-object ActiveAlgorithm{
-  var rng = spire.random.rng.MersenneTwister32().asInstanceOf[spire.random.Generator]
-}
 
-object GetActiveAlgorithm extends api.Reporter {
+// Utilities
+
+object ReportActiveAlgorithm extends api.Reporter {
   override def getSyntax =
     reporterSyntax(ret = StringType)
   def report(args: Array[api.Argument], context: api.Context): AnyRef = {
-    ActiveAlgorithm.rng.getClass.getName.split('.').last.toLogoObject
+    PseudoRandom.algorithm.getClass.getName.split('.').last.toLogoObject
   }
 }

@@ -2,51 +2,78 @@ extensions [pseudorandom]
 
 to setup
   clear-all
-
-  crt 4 [
-    set heading who * 90
-    set shape "circle" fd 10
-  ]
-
   reset-ticks
 end
 
-to PCG64
-
-  pseudorandom:use-pcg
-
-  show pseudorandom:active-algorithm
-
-  ask turtles [
-    set size pseudorandom:random 10
-    set label size
+to-report next-number
+  ifelse normal-distribution? [
+    report pseudorandom:random-normal 0.5 0.2
+  ][
+    report pseudorandom:random-float 1
   ]
+end
 
+to make-circles
+  setup
+  ask patches [
+    set pcolor green + 4
+    sprout 1 [
+      set shape "circle"
+      set size next-number
+      set color blue - size * 2
+    ]
+  ]
+  tick
+end
+
+to pcg
+  pseudorandom:use-pcg
+  make-circles
 end
 
 
 
-to Mersenne
-
+to mersenne
   pseudorandom:use-mersenne
+  make-circles
+end
 
-  show pseudorandom:active-algorithm
+to well
+  pseudorandom:use-well
+  make-circles
+end
 
-  ask turtles [
-    set size pseudorandom:random 10
-    set label size
+to xorshift
+  pseudorandom:use-xorshift
+  make-circles
+end
+
+to built-in
+  setup
+  ask patches [
+    set pcolor green + 4
+    sprout 1 [
+      set shape "circle"
+      ifelse normal-distribution? [
+        set size random-normal 0.5 0.2
+      ][
+        set size random-float 1
+      ]
+
+      set color blue - size * 2
+    ]
   ]
-
+  tick
 end
 @#$#@#$#@
 GRAPHICS-WINDOW
-210
+225
 10
-647
-448
+563
+349
 -1
 -1
-13.0
+10.0
 1
 10
 1
@@ -66,13 +93,53 @@ GRAPHICS-WINDOW
 ticks
 30.0
 
-BUTTON
-21
-46
-151
-123
+MONITOR
+570
+10
+782
+55
 NIL
-setup
+pseudorandom:active-algorithm
+17
+1
+11
+
+SWITCH
+15
+15
+197
+48
+normal-distribution?
+normal-distribution?
+0
+1
+-1000
+
+PLOT
+570
+65
+780
+215
+distribution
+NIL
+NIL
+0.0
+1.0
+0.0
+300.0
+true
+false
+"" ""
+PENS
+"default" 0.1 1 -16777216 true "" "histogram [size] of turtles"
+
+BUTTON
+15
+120
+82
+153
+NIL
+pcg
 NIL
 1
 T
@@ -84,12 +151,12 @@ NIL
 1
 
 BUTTON
-21
-198
-141
-264
+15
+70
+107
+103
 NIL
-PCG64
+mersenne
 NIL
 1
 T
@@ -101,12 +168,46 @@ NIL
 1
 
 BUTTON
-23
-283
-141
-371
+15
+170
+78
+203
 NIL
-Mersenne
+well
+NIL
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+1
+
+BUTTON
+15
+220
+92
+253
+NIL
+xorshift
+NIL
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+1
+
+BUTTON
+15
+270
+92
+303
+NIL
+built-in
 NIL
 1
 T
@@ -463,6 +564,53 @@ NetLogo 6.3.0
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@
+<experiments>
+  <experiment name="pcg" repetitions="1" sequentialRunOrder="false" runMetricsEveryStep="false">
+    <go>pcg</go>
+    <timeLimit steps="10000"/>
+    <metric>count turtles</metric>
+    <enumeratedValueSet variable="normal-distribution?">
+      <value value="true"/>
+      <value value="false"/>
+    </enumeratedValueSet>
+  </experiment>
+  <experiment name="mersenne" repetitions="1" sequentialRunOrder="false" runMetricsEveryStep="false">
+    <go>mersenne</go>
+    <timeLimit steps="10000"/>
+    <metric>count turtles</metric>
+    <enumeratedValueSet variable="normal-distribution?">
+      <value value="true"/>
+      <value value="false"/>
+    </enumeratedValueSet>
+  </experiment>
+  <experiment name="well" repetitions="1" sequentialRunOrder="false" runMetricsEveryStep="false">
+    <go>well</go>
+    <timeLimit steps="10000"/>
+    <metric>count turtles</metric>
+    <enumeratedValueSet variable="normal-distribution?">
+      <value value="true"/>
+      <value value="false"/>
+    </enumeratedValueSet>
+  </experiment>
+  <experiment name="xorshift" repetitions="1" sequentialRunOrder="false" runMetricsEveryStep="false">
+    <go>xorshift</go>
+    <timeLimit steps="10000"/>
+    <metric>count turtles</metric>
+    <enumeratedValueSet variable="normal-distribution?">
+      <value value="true"/>
+      <value value="false"/>
+    </enumeratedValueSet>
+  </experiment>
+  <experiment name="built-in" repetitions="1" sequentialRunOrder="false" runMetricsEveryStep="false">
+    <go>built-in</go>
+    <timeLimit steps="10000"/>
+    <metric>count turtles</metric>
+    <enumeratedValueSet variable="normal-distribution?">
+      <value value="true"/>
+      <value value="false"/>
+    </enumeratedValueSet>
+  </experiment>
+</experiments>
 @#$#@#$#@
 @#$#@#$#@
 default
@@ -476,5 +624,5 @@ true
 Line -7500403 true 150 150 90 180
 Line -7500403 true 150 150 210 180
 @#$#@#$#@
-0
+1
 @#$#@#$#@
