@@ -1,0 +1,24 @@
+# sbt
+project/project/
+project/target/
+target/
+
+# VSCode
+.vscode
+
+# IntelliJ IDEA
+*.log
+*.iml
+*.ipr
+*.iws
+.idea
+
+# MacOS
+.DS_Store
+
+# Java
+*.class
+
+# netlogo
+*.tmp.nlogo
+
