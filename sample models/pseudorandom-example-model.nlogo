@@ -2,68 +2,61 @@ extensions [pseudorandom]
 
 to setup
   clear-all
+
+  ask patches [
+    sprout 1 [
+      set size next-number / 4
+    ]
+  ]
+
+  if algorithm = "mersenne" [ pseudorandom:use-mersenne ]
+
+  if algorithm = "pcg" [ pseudorandom:use-pcg ]
+
+  if algorithm = "well" [ pseudorandom:use-well]
+
+  if algorithm = "xorshift" [ pseudorandom:use-xorshift]
+
   reset-ticks
 end
 
+to go
+  ask turtles [
+    set size next-number / 4
+  ]
+  tick
+end
+
 to-report next-number
-  ifelse normal-distribution? [
-    report pseudorandom:random-normal 0.5 0.2
+  ifelse algorithm != "built-in mersenne" [
+    if primitive = "random" [
+      report pseudorandom:random 5
+    ]
+    if primitive = "random-float" [
+      report pseudorandom:random-float 4
+    ]
+
+    if primitive = "random-normal" [
+      report pseudorandom:random-normal 2 1
+    ]
   ][
-    report pseudorandom:random-float 1
-  ]
-end
+    if primitive = "random" [
+      report random 5
+    ]
+    if primitive = "random-float" [
+      report random-float 4
+    ]
 
-to make-circles
-  setup
-  ask patches [
-    set pcolor green + 4
-    sprout 1 [
-      set shape "circle"
-      set size next-number
-      set color blue - size * 2
+    if primitive = "random-normal" [
+      report random-normal 2 1
     ]
   ]
-  tick
 end
 
-to pcg
-  pseudorandom:use-pcg
-  make-circles
-end
-
-
-
-to mersenne
-  pseudorandom:use-mersenne
-  make-circles
-end
-
-to well
-  pseudorandom:use-well
-  make-circles
-end
-
-to xorshift
-  pseudorandom:use-xorshift
-  make-circles
-end
-
-to built-in
-  setup
-  ask patches [
-    set pcolor green + 4
-    sprout 1 [
-      set shape "circle"
-      ifelse normal-distribution? [
-        set size random-normal 0.5 0.2
-      ][
-        set size random-float 1
-      ]
-
-      set color blue - size * 2
-    ]
-  ]
-  tick
+to final
+  show "ended"
+  show behaviorspace-experiment-name
+  show date-and-time
 end
 @#$#@#$#@
 GRAPHICS-WINDOW
@@ -87,8 +80,8 @@ GRAPHICS-WINDOW
 16
 -16
 16
-0
-0
+1
+1
 1
 ticks
 30.0
@@ -104,17 +97,6 @@ pseudorandom:active-algorithm
 1
 11
 
-SWITCH
-15
-15
-197
-48
-normal-distribution?
-normal-distribution?
-1
-1
--1000
-
 PLOT
 570
 65
@@ -123,8 +105,8 @@ PLOT
 distribution
 NIL
 NIL
-0.0
-1.0
+-0.5
+1.5
 0.0
 300.0
 true
@@ -134,29 +116,12 @@ PENS
 "default" 0.1 1 -16777216 true "" "histogram [size] of turtles"
 
 BUTTON
-15
-120
-82
-153
+10
+10
+72
+43
 NIL
-pcg
-NIL
-1
-T
-OBSERVER
-NIL
-NIL
-NIL
-NIL
-1
-
-BUTTON
-15
-70
-107
-103
-NIL
-mersenne
+setup
 NIL
 1
 T
@@ -168,55 +133,74 @@ NIL
 1
 
 BUTTON
-15
+80
+10
+143
+43
+NIL
+go
+T
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+1
+
+CHOOSER
+10
+60
+200
+105
+algorithm
+algorithm
+"built-in mersenne" "mersenne" "pcg" "well" "xorshift"
+4
+
+CHOOSER
+10
+125
 170
-78
-203
-NIL
-well
-NIL
-1
-T
-OBSERVER
-NIL
-NIL
-NIL
-NIL
-1
+170
+primitive
+primitive
+"random" "random-float" "random-normal"
+2
 
-BUTTON
-15
-220
-92
-253
-NIL
-xorshift
-NIL
+MONITOR
+570
+230
+665
+275
+min
+min [size] of turtles
+10
 1
-T
-OBSERVER
-NIL
-NIL
-NIL
-NIL
-1
+11
 
-BUTTON
-15
-270
-92
-303
-NIL
-built-in
-NIL
+MONITOR
+680
+230
+780
+275
+max
+max [size] of turtles
+10
 1
-T
-OBSERVER
-NIL
-NIL
-NIL
-NIL
+11
+
+MONITOR
+570
+295
+780
+340
+mean
+mean [size] of turtles
+17
 1
+11
 
 @#$#@#$#@
 ## WHAT IS IT?
@@ -565,54 +549,54 @@ NetLogo 6.3.0
 @#$#@#$#@
 @#$#@#$#@
 <experiments>
-  <experiment name="pcg" repetitions="1" sequentialRunOrder="false" runMetricsEveryStep="false">
-    <setup>show (word "pcg start: " date-and-time)</setup>
-    <go>pcg</go>
-    <final>show (word "pcg end: " date-and-time)</final>
-    <timeLimit steps="1000000"/>
-    <enumeratedValueSet variable="normal-distribution?">
-      <value value="true"/>
-      <value value="false"/>
+  <experiment name="built-in" repetitions="1" sequentialRunOrder="false" runMetricsEveryStep="false">
+    <setup>setup</setup>
+    <go>go</go>
+    <final>final</final>
+    <timeLimit steps="10000000"/>
+    <metric>ticks</metric>
+    <enumeratedValueSet variable="algorithm">
+      <value value="&quot;built-in mersenne&quot;"/>
     </enumeratedValueSet>
   </experiment>
   <experiment name="mersenne" repetitions="1" sequentialRunOrder="false" runMetricsEveryStep="false">
-    <setup>show (word "mersenne start: " date-and-time)</setup>
-    <go>mersenne</go>
-    <final>show (word "mersenne end: " date-and-time)</final>
-    <timeLimit steps="1000000"/>
-    <enumeratedValueSet variable="normal-distribution?">
-      <value value="true"/>
-      <value value="false"/>
+    <setup>setup</setup>
+    <go>go</go>
+    <final>final</final>
+    <timeLimit steps="10000000"/>
+    <metric>ticks</metric>
+    <enumeratedValueSet variable="algorithm">
+      <value value="&quot;mersenne&quot;"/>
+    </enumeratedValueSet>
+  </experiment>
+  <experiment name="pcg" repetitions="1" sequentialRunOrder="false" runMetricsEveryStep="false">
+    <setup>setup</setup>
+    <go>go</go>
+    <final>final</final>
+    <timeLimit steps="10000000"/>
+    <metric>ticks</metric>
+    <enumeratedValueSet variable="algorithm">
+      <value value="&quot;pcg&quot;"/>
     </enumeratedValueSet>
   </experiment>
   <experiment name="well" repetitions="1" sequentialRunOrder="false" runMetricsEveryStep="false">
-    <setup>show (word "well start: " date-and-time)</setup>
-    <go>well</go>
-    <final>show (word "well end: " date-and-time)</final>
-    <timeLimit steps="1000000"/>
-    <enumeratedValueSet variable="normal-distribution?">
-      <value value="true"/>
-      <value value="false"/>
+    <setup>setup</setup>
+    <go>go</go>
+    <final>final</final>
+    <timeLimit steps="10000000"/>
+    <metric>ticks</metric>
+    <enumeratedValueSet variable="algorithm">
+      <value value="&quot;well&quot;"/>
     </enumeratedValueSet>
   </experiment>
   <experiment name="xorshift" repetitions="1" sequentialRunOrder="false" runMetricsEveryStep="false">
-    <setup>show (word "xorshift start: " date-and-time)</setup>
-    <go>xorshift</go>
-    <final>show (word "xorshift end: " date-and-time)</final>
-    <timeLimit steps="1000000"/>
-    <enumeratedValueSet variable="normal-distribution?">
-      <value value="true"/>
-      <value value="false"/>
-    </enumeratedValueSet>
-  </experiment>
-  <experiment name="built-in" repetitions="1" sequentialRunOrder="false" runMetricsEveryStep="false">
-    <setup>show (word "builtin start: " date-and-time)</setup>
-    <go>built-in</go>
-    <final>show (word "builtin end: " date-and-time)</final>
-    <timeLimit steps="1000000"/>
-    <enumeratedValueSet variable="normal-distribution?">
-      <value value="true"/>
-      <value value="false"/>
+    <setup>setup</setup>
+    <go>go</go>
+    <final>final</final>
+    <timeLimit steps="10000000"/>
+    <metric>ticks</metric>
+    <enumeratedValueSet variable="algorithm">
+      <value value="&quot;xorshift&quot;"/>
     </enumeratedValueSet>
   </experiment>
 </experiments>
