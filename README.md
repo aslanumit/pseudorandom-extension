@@ -1,6 +1,4 @@
-# pseudo random number generator extension
-
-To be updated
+# Proof-of-concept pseudorandom number generator extension for NetLogo
 
 ## Building
 
